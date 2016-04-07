@@ -1,0 +1,6 @@
+.Rproj*
+R/R.Rproj
+.Rdata
+.Rhistory
+.DS_STORE
+.idea
