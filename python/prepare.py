@@ -41,34 +41,42 @@ def load_data(out, max  = 100):
     json.dump({"rentals": listings}, open(out, "w"))
 
 
+load_data("rentals.json")
+
 def toCsv(inputF, outputF):
 
     rentals = json.load(inputF, encoding="utf-8")["rentals"]
-    keys = ["propertyId", "rentPrice", "area", "bathrooms", "rooms", "garages", "latitude", "longitude", "address", "suites",
+    keys = ["propertyId", "rentPrice", "area", "bathrooms", "rooms",
+            "garages", "latitude", "longitude", "address", "suites",
             "rentPeriodId", "condominiumPrice", "iptu"]
 
-    extraKeys = set().union(*[set(r["additionalFeatures"]) for r in rentals])
-
-    entries = []
-
-    print rentals[0]
-
-    for rental in rentals:
-        entry = {k: rental[k] for k in keys}
-        entry.update({k:0 for k in extraKeys})
-        entry.update({k:1 for k in rental["additionalFeatures"]})
-        entries += [entry]
-
-    print keys + list(extraKeys)
-
-    writer = csv.DictWriter(outputF, encoding="utf-8", fieldnames= keys + list(extraKeys), quoting=csv.QUOTE_ALL)
-
+    writer = csv.DictWriter(outputF, encoding="utf-8", fieldnames=keys, quoting=csv.QUOTE_ALL)
     writer.writeheader()
-    writer.writerows(entries)
+    writer.writerows([{k:rental[k] for k in keys} for rental in rentals ])
+
+    # This extracts the extra fields data
+
+    # extraKeys = set().union(*[set(r["additionalFeatures"]) for r in rentals])
+    #
+    # entries = []
+    #
+    # print rentals[0]
+    #
+    # for rental in rentals:
+    #     entry = {k: rental[k] for k in keys}
+    #     entry.update({k:0 for k in extraKeys})
+    #     entry.update({k:1 for k in rental["additionalFeatures"]})
+    #     entries += [entry]
+    #
+    # print keys + list(extraKeys)
+    #
+    # writer = csv.DictWriter(outputF, encoding="utf-8", fieldnames= keys + list(extraKeys), quoting=csv.QUOTE_ALL)
+    #
+    # writer.writeheader()
+    # writer.writerows(entries)
 
 # load_data("rentals_small.json", max=5)
 
-load_data("rentals.json")
 with open("rentals.json","r") as inputF:
     with open("rentals.csv","w") as outputF:
         toCsv(inputF, outputF)
