@@ -8,7 +8,7 @@ data <- data[(data$rentPeriodId=="MON") & data$latitude> -28 & data$latitude < -
 train_indexes <- runif(nrow(data)) < 0.7
 
 train_data <- data[train_indexes,]
-l <- lm(data = train_data, formula = rentPrice ~  rooms + bathrooms + latitude + longitude+area)
+l <- lm(data = train_data, formula = rentPrice ~  rooms + bathrooms + latitude + longitude + garages + area)
 
 test_data <- data[!train_indexes,]
 
