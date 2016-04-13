@@ -1,5 +1,7 @@
+python/.ipynb_checkpoints
 .Rproj*
 R/R.Rproj
+*.pyc
 .Rdata
 .Rhistory
 .DS_STORE

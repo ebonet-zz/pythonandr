@@ -22,12 +22,13 @@ train_data, test_data = data[rds < 0.7], data[rds >= 0.7]
 
 # Simple prediction
 
-result = sm.ols(formula="rentPrice ~ rooms + bathrooms + latitude + longitude + garages + area", data = train_data).fit()
+
+result = sm.ols(formula="rentPrice ~ rooms + bathrooms + latitude + longitude + garages", data = train_data).fit()
 result.summary()
 
 # Plot results
 
-# from visualization import plot_results, plot_scater_map
+from visualization import plot_results, plot_scater_map
 #
 # plot_scater_map(train_data)
 # plot_results(test_data.rentPrice, result.predict(test_data))

@@ -1,11 +1,14 @@
 import requests, json
 import unicodecsv as csv
 
-# url = "page=%d&maxResults=40&&language=pt&rankingId=0&exactLocation=false&currency=BRL&&
-
-
-
 def perform_paged_request(page):
+    """
+    Query a single page of the Viva Real API.
+
+    :param page the page index to be queried
+
+    :return a dictionary representation of the data queried
+    """
     url = "http://api.vivareal.com/api/1.0/locations/listings"
     params = {
         "apiKey": "183d98b9-fc81-4ef1-b841-7432c610b36e",
@@ -23,7 +26,12 @@ def perform_paged_request(page):
     response = requests.get(url, params=params)
     return json.loads(response.content)
 
-def load_data(out, max  = 100):
+def load_data(max  = 100):
+    """
+    Loads Viva Real API listings
+    :param out the name of the file to save the results
+    :param max max number of pages to load
+    """
 
     current_page = 1
 
@@ -37,46 +45,25 @@ def load_data(out, max  = 100):
         current_page += 1
         data = perform_paged_request(current_page)
 
+    return listings
 
-    json.dump({"rentals": listings}, open(out, "w"))
+def extractInfo(listings):
+    """
+    Extracts interesting rental data from the listing objects
 
+    :param listings the path for the input file
+    :return they properties in the new dictionary and a list of the transformed object
+    """
 
-load_data("rentals.json")
-
-def toCsv(inputF, outputF):
-
-    rentals = json.load(inputF, encoding="utf-8")["rentals"]
     keys = ["propertyId", "rentPrice", "area", "bathrooms", "rooms",
             "garages", "latitude", "longitude", "address", "suites",
             "rentPeriodId", "condominiumPrice", "iptu"]
 
-    writer = csv.DictWriter(outputF, encoding="utf-8", fieldnames=keys, quoting=csv.QUOTE_ALL)
+    return keys, [{k: rental[k] for k in keys} for rental in listings]
+
+with open("rentals.csv", "w") as csvFile:
+    data = load_data()
+    keys, data = extractInfo(data)
+    writer = csv.DictWriter(csvFile, encoding="utf-8", fieldnames=keys, quoting=csv.QUOTE_ALL)
     writer.writeheader()
-    writer.writerows([{k:rental[k] for k in keys} for rental in rentals ])
-
-    # This extracts the extra fields data
-
-    # extraKeys = set().union(*[set(r["additionalFeatures"]) for r in rentals])
-    #
-    # entries = []
-    #
-    # print rentals[0]
-    #
-    # for rental in rentals:
-    #     entry = {k: rental[k] for k in keys}
-    #     entry.update({k:0 for k in extraKeys})
-    #     entry.update({k:1 for k in rental["additionalFeatures"]})
-    #     entries += [entry]
-    #
-    # print keys + list(extraKeys)
-    #
-    # writer = csv.DictWriter(outputF, encoding="utf-8", fieldnames= keys + list(extraKeys), quoting=csv.QUOTE_ALL)
-    #
-    # writer.writeheader()
-    # writer.writerows(entries)
-
-# load_data("rentals_small.json", max=5)
-
-with open("rentals.json","r") as inputF:
-    with open("rentals.csv","w") as outputF:
-        toCsv(inputF, outputF)
+    writer.writerows(data)
